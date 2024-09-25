@@ -1,32 +1,38 @@
-import { useState } from "react";
-import { FaUser, FaLock } from "react-icons/fa";
-import { Link } from "react-router-dom"; // Importa o Link para navegação
-import "./Registro.css";
+import React, { useState } from "react";
+import { FaUser, FaLock } from "react-icons/fa"; // Importa os ícones
+import { Link } from "react-router-dom"; // Importa o Link
+import { registerUser } from '../../register-service'; // Importa a função de registro
+import "./Registro.css"; // Importa o CSS
 
 const Registro = () => {
-  // Estados para armazenar as entradas do usuário
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [senha, setSenha] = useState("");
+  const [message, setMessage] = useState(""); // Adiciona mensagem de feedback
 
-  // Função que é chamada quando o formulário é enviado
-  const handleSubmit = (event) => {
-    // Impede que a página seja recarregada
-    event.preventDefault();
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-    // Valida se as senhas coincidem
-    if (password !== confirmPassword) {
-      console.error("As senhas não coincidem");
-      return;
+    const userData = {
+      email: email,
+      senha: senha,
+    };
+
+    try {
+      const response = await registerUser(userData);
+      console.log("Usuário registrado com sucesso:", response);
+      setMessage("Usuário registrado com sucesso!"); // Mensagem de sucesso
+      // Limpar os campos após o registro, se necessário
+      setEmail("");
+      setSenha("");
+    } catch (error) {
+      console.error("Erro ao registrar usuário:", error);
+      setMessage("Erro ao registrar usuário: " + error.message); // Mensagem de erro
     }
-
-    // Faz o console log dos dados de registro do usuário
-    console.log("Dados de Registro:", { email, password });
   };
 
   return (
     <div className="container">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleRegister}>
         <h1>Crie sua conta</h1>
         <div className="input-field">
           <input
@@ -43,27 +49,20 @@ const Registro = () => {
             type="password"
             placeholder="Senha"
             required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
           />
           <FaLock className="icon" />
         </div>
-        <div className="input-field">
-          <input
-            type="password"
-            placeholder="Confirme a Senha"
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          <FaLock className="icon" />
-        </div>
-
+        
         <button type="submit">Registrar</button>
+
+        {/* Mensagem de feedback */}
+        {message && <p>{message}</p>}
 
         <div className="login-link">
           <p>
-            Já tem uma conta? <Link to="/login">Login</Link> {/* Usando Link para navegação */}
+            Já tem uma conta? <Link to="/login">Login</Link>
           </p>
         </div>
       </form>
